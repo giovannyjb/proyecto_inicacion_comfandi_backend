@@ -6,15 +6,16 @@ from rest_framework import viewsets, permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.response import Response
+import json
 
-from .serializers import UserTokenSerializer
+from .serializers import UserTokenSerializer,UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
 
     permission_classes = [permissions.AllowAny]
-    serializer_class = UserTokenSerializer
+    serializer_class = UserSerializer
 
     def create(self, request, *args, **kwargs):
 
@@ -49,17 +50,21 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["POST"])
     def login(self, request):
-        user = User.objects.filter(email=request.POST['email'],
-                                   password=make_password(request.POST['password'], 'pass', 'pbkdf2_sha256')).first()
-        if user is not None:
-            token = Token.objects.get_or_create(user=user)
-            user_serializer = UserTokenSerializer(user)
-            if token[0]:
-                return Response({
-                    'token': token[0].key,
-                    'user': user_serializer.data,
-                    'message': 'done'})
-            else:
-                return Response({'errors': "token no created"})
+        received_json_data = json.loads(request.body)
+        user_serializer = UserTokenSerializer(data=request.data)
+        if user_serializer.is_valid():
+
+            user = User.objects.filter(email=received_json_data['email'],
+                                       password=make_password(received_json_data['password'], 'pass', 'pbkdf2_sha256')).first()
+            if user is not None:
+                token = Token.objects.get_or_create(user=user)
+                user_serializer = UserTokenSerializer(user)
+                if token[0]:
+                    return Response({
+                        'token': token[0].key,
+                        'user': user_serializer.data,
+                        'message': 'done'})
+                else:
+                    return Response({'errors': "token no created"})
         else:
             return JsonResponse({"errors": "user not found"})
