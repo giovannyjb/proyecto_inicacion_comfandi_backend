@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 import json
 
-from .serializers import UserTokenSerializer,UserSerializer
+from .serializers import UserTokenSerializer, UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -55,16 +55,17 @@ class UserViewSet(viewsets.ModelViewSet):
         if user_serializer.is_valid():
 
             user = User.objects.filter(email=received_json_data['email'],
-                                       password=make_password(received_json_data['password'], 'pass', 'pbkdf2_sha256')).first()
+                                       password=make_password(received_json_data['password'], 'pass',
+                                                              'pbkdf2_sha256')).first()
             if user is not None:
                 token = Token.objects.get_or_create(user=user)
                 user_serializer = UserTokenSerializer(user)
                 if token[0]:
-                    return Response({
+                    return JsonResponse({
                         'token': token[0].key,
                         'user': user_serializer.data,
-                        'message': 'done'})
-                else:
-                    return Response({'errors': "token no created"})
+                        'message': 'done'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'errors': "user no exits"}, status=status.HTTP_200_OK)
         else:
-            return JsonResponse({"errors": "user not found"})
+            return Response({"errors": "no valid"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
