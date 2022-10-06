@@ -19,7 +19,7 @@ class Experience(models.Model):
         BACKEND = 1, 'Backend'
 
     type = models.IntegerField(default=State.FRONTEND, choices=State.choices)
-    title = models.CharField()
+    title = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

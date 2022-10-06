@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from user.models import AboutMe, Experience
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -15,4 +16,16 @@ class UserSerializer(serializers.ModelSerializer):
 class UserTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ( 'email', 'password')
+        fields = ('email', 'password')
+
+
+class AboutMeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AboutMe
+        fields = ('id', 'experience', 'clients', 'projects', 'description', 'created_at', 'updated_at', 'user_id')
+
+
+class ExperienceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Experience
+        fields = ('id', 'type', 'title', 'user_id', 'created_at', 'updated_at')

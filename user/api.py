@@ -7,8 +7,9 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.response import Response
 import json
+from .models import AboutMe, Experience
 
-from .serializers import UserTokenSerializer, UserSerializer
+from .serializers import UserTokenSerializer, UserSerializer, AboutMeSerializer, ExperienceSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -69,3 +70,16 @@ class UserViewSet(viewsets.ModelViewSet):
                 return Response({'errors': "user no exits"}, status=status.HTTP_200_OK)
         else:
             return Response({"errors": "no valid"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AboutMeViewSet(viewsets.ModelViewSet):
+    queryset = AboutMe.objects.all()
+
+    permission_classes = [permissions.AllowAny]
+    serializer_class = AboutMeSerializer
+
+
+class ExperienceViewSet(viewsets.ModelViewSet):
+    queryset = Experience.objects.all()
+    permission_classes = [permissions.AllowAny]
+    serializer_class = ExperienceSerializer
