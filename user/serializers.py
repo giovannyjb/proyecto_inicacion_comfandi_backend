@@ -4,13 +4,9 @@ from user.models import AboutMe, Experience
 
 
 class UserSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(max_length=200)
-    email = serializers.EmailField()
-
     class Meta:
         model = User
-        fields = ('id', 'name', 'email', 'password', 'status', 'created_at', 'updated_at')
-        read_only_fields = ('created_at',)
+        fields = ('id', 'username', 'email', 'first_name', 'last_name')
 
 
 class UserTokenSerializer(serializers.ModelSerializer):
@@ -22,10 +18,35 @@ class UserTokenSerializer(serializers.ModelSerializer):
 class AboutMeSerializer(serializers.ModelSerializer):
     class Meta:
         model = AboutMe
-        fields = ('id', 'experience', 'clients', 'projects', 'description', 'created_at', 'updated_at', 'user_id')
+        fields = (
+            'id', 'job_description', 'experience', 'clients', 'projects', 'description', 'created_at', 'updated_at',
+            'user_id', 'img_profile','cv','phone')
+
+
+class AboutMeUserSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    def __init__(self, *args, **kwargs):
+        super(self.__class__, self).__init__(*args, **kwargs)
+        self.fields['user'].required = False
+
+    class Meta:
+        model = AboutMe
+        fields = (
+            'id', 'job_description', 'experience', 'clients', 'projects', 'description', 'created_at', 'updated_at',
+            'user_id', 'img_profile', 'user','cv','phone')
 
 
 class ExperienceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experience
-        fields = ('id', 'type', 'title', 'user_id', 'created_at', 'updated_at')
+        fields = ('id', 'type', 'title', 'user_id','level', 'created_at', 'updated_at')
+
+
+class UserAllSerializer(serializers.ModelSerializer):
+    about_me = AboutMeSerializer()
+    experiences = ExperienceSerializer(many=True)
+
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'about_me', 'experiences')
